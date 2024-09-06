@@ -1,0 +1,33 @@
+// Copyright Lightbend Inc.
+
+// Entity level extensions for protobuf.
+
+syntax = "proto3";
+
+package kalix;
+
+option go_package = "github.com/lightbend/kalix-go-sdk/kalix;kalix";
+option java_multiple_files = true;
+option java_outer_classname = "TriggerProto";
+option java_package = "kalix";
+
+// Allowing a method on the user service to be declared as a Hook to be called upon a specific life-cycle event.
+message TriggerOptions {
+  enum TriggerEvent {
+    UNSPECIFIED = 0;
+
+    // The on startup hook is called every time a service instance boots up.
+    // This can happen for very different reasons: restarting / redeploying the service,
+    // scaling up to more instances or even without any user-driven action
+    // (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.).
+    // Therefore, one should carefully consider how to use this hook and its implementation.
+    STARTUP = 1;
+  }
+
+  // The service life-cycle event for which this hook will be triggered.
+  TriggerEvent on = 1;
+
+  // The maximum number of retries we will do upon failure of the method hook calls.
+  // The default value 0 means no retries are done.
+  int32 max_retries = 2;
+}

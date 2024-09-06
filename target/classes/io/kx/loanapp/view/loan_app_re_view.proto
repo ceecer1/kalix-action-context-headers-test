@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "google/api/annotations.proto";
+import "kalix/annotations.proto";
+
+import "io/kx/loanapp/api/loan_app_api.proto";
+import "io/kx/loanapp/domain/loan_app_domain.proto";
+import "io/kx/loanapp/view/loan_app_view.proto";
+  
+package io.kx.loanapp.view;
+
+option java_outer_classname = "ReLoanAppViewByStatusModel";
+
+message ReLoanAppViewState {
+  int32 status_id = 1;
+  loanapp.api.LoanAppStatus status = 2;
+  string loan_app_id = 3;
+  google.protobuf.Timestamp last_updated_timestamp = 4;
+}
+
+message ReLoanAppViewResponse {
+  repeated ReLoanAppViewState results = 1;
+}
+
+service ReLoanAppByStatus {
+
+  option(kalix.codegen) = {
+    view: {}
+  };
+
+  rpc GetLoanAppByStatus(loanapp.view.GetLoanAppStatusRequest) returns (ReLoanAppViewResponse) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS results"
+              " FROM re_loan_app_by_status"
+              " WHERE status_id = :status_id"
+    };
+
+    option (google.api.http) = {
+      post: "/loanapp/views/re-by-status",
+      body: "*"
+    };
+  }
+
+  rpc OnSubmitted(loanapp.domain.Submitted) returns (ReLoanAppViewState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "loanapp"
+    };
+
+    option (kalix.method).view.update = {
+      table: "re_loan_app_by_status"
+      transform_updates: true
+    };
+  }
+
+  rpc OnApproved(loanapp.domain.Approved) returns (ReLoanAppViewState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "loanapp"
+    };
+
+    option (kalix.method).view.update = {
+      table: "re_loan_app_by_status"
+      transform_updates: true
+    };
+  }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (ReLoanAppViewState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "loanapp"
+    };
+
+    option (kalix.method).view.update = {
+      table: "re_loan_app_by_status"
+      transform_updates: true
+    };
+  }
+}

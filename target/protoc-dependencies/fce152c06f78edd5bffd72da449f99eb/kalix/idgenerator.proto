@@ -1,0 +1,21 @@
+// Copyright Lightbend Inc.
+
+syntax = "proto3";
+
+package kalix;
+
+import "kalix/keygenerator.proto";
+
+option go_package = "github.com/lightbend/kalix-go-sdk/kalix;kalix";
+option java_multiple_files = true;
+option java_outer_classname = "IdGeneratorProto";
+option java_package = "kalix";
+
+message IdGeneratorMethodOptions {
+  // Indicates that Kalix should generate an id when this method is invoked. The id can be used as an entity id or a workflow id.
+  //
+  // The generated id will be accessible via the entity or workflow context supplied in the SDK.
+  //
+  // The incoming message MUST NOT declare an 'entity_key' nor a 'id' annotated field, if it does, an error will be raised.
+  KeyGeneratorMethodOptions.Generator algorithm = 1;
+}

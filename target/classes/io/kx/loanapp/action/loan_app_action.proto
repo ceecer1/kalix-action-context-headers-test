@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package io.kx.loanapp.action;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+import "io/kx/loanapp/api/loan_app_api.proto";
+import "io/kx/loanapp/domain/loan_app_domain.proto";
+
+option java_outer_classname = "LoanAppActionHandler";
+
+service LoanAppServiceAction {
+
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+
+
+  rpc SubmitLoanApplication(api.SubmitCommand) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/loanapp/create",
+      body: "*"
+    };
+  }
+
+  rpc ExpireAction(api.DeclineCommand) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/loanapp/expire",
+      body: "*"
+    };
+  }
+
+  option (kalix.service).eventing.in = { // <1>
+    event_sourced_entity: "loanapp"
+    // skip/filter events that there is no transform method for (AddressChanged)
+    ignore_unknown: true // <2>
+  };
+  rpc CancelExpireTimer(domain.Approved) returns (google.protobuf.Empty) { } // <5>
+}

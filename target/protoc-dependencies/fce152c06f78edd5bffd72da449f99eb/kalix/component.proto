@@ -1,0 +1,146 @@
+// Copyright Lightbend Inc.
+
+// Extension for describing entities in general e.g. their associations
+
+syntax = "proto3";
+
+package kalix;
+
+option go_package = "github.com/lightbend/kalix-go-sdk/kalix;kalix";
+option java_multiple_files = true;
+option java_outer_classname = "ComponentProto";
+option java_package = "kalix";
+
+// Options to describe an Action
+message ActionDef {
+  // Optional name for the action - if not defined, will follow the name of the service
+  string name = 1;
+}
+
+// Options to describe a Workflow
+message WorkflowDef {
+  // Optional name for the workflow - if not defined, will follow the name of the service
+  string name = 1;
+
+  // A mandatory type id of a workflow.
+  // The type id should be unique among the different workflows within a Kalix application.
+  // Additionally, the type id should be stable as a different identifier means a different workflow in storage.
+  // Changing this identifier will create a new class of workflows and all previous instances using the old identifier won't be accessible anymore.
+  string type_id = 2;
+
+  // The associated state message.
+  string state = 3;
+}
+
+// Options to describe a View
+message ViewDef {
+  // Optional name for the view - if not defined, will follow the name of the service
+  string name = 1;
+}
+
+// Options to describe event sourced entities
+message EventSourcedEntityDef {
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
+  // deprecated: use `type_id` instead
+  string entity_type = 2 [deprecated = true];
+  // The associated state message.
+  string state = 3;
+  // Zero or more event messages associated with the entity.
+  repeated string events = 4;
+  // A mandatory type id of an entity.
+  // The type id should be unique among the different entities within a Kalix application.
+  // Additionally, the type id should be stable as a different identifier means a different entity in storage.
+  // Changing this identifier will create a new class of component and all previous instances using the old identifier won't be accessible anymore.
+  string type_id = 5;
+}
+
+// Options to describe value entities
+message ValueEntityDef {
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
+  // deprecated: use `type_id` instead
+  string entity_type = 2 [deprecated = true];
+  // The associated state message.
+  string state = 3;
+  // A mandatory type id of an entity.
+  // The type id should be unique among the different entities within a Kalix application.
+  // Additionally, the type id should be stable as a different identifier means a different entity in storage.
+  // Changing this identifier will create a new class of component and all previous instances using the old identifier won't be accessible anymore.
+  string type_id = 4;
+}
+
+// Options to describe replicated entities
+message ReplicatedEntityDef {
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
+  // deprecated: use `type_id` instead
+  string entity_type = 2 [deprecated = true];
+  // Mandatory replicated data type for this replicated entity
+  oneof replicated_data {
+    // Configure this entity as a replicated counter
+    ReplicatedCounterDef replicated_counter = 3;
+    // Configure this entity as a replicated register
+    ReplicatedRegisterDef replicated_register = 4;
+    // Configure this entity as a replicated set
+    ReplicatedSetDef replicated_set = 5;
+    // Configure this entity as a (heterogeneous) replicated map
+    ReplicatedMapDef replicated_map = 6;
+    // Configure this entity as a replicated counter map
+    ReplicatedCounterMapDef replicated_counter_map = 7;
+    // Configure this entity as a replicated register map
+    ReplicatedRegisterMapDef replicated_register_map = 8;
+    // Configure this entity as a replicated multi-map
+    ReplicatedMultiMapDef replicated_multi_map = 9;
+    // Configure this entity as a replicated vote
+    ReplicatedVoteDef replicated_vote = 10;
+  }
+  // The entity type id used when replicating this entity
+  string type_id = 11;
+}
+
+// Options specific to replicated counters
+message ReplicatedCounterDef {}
+
+// Options specific to replicated registers
+message ReplicatedRegisterDef {
+  // Mandatory value type for this replicated register
+  string value = 1;
+}
+
+// Options specific to replicated sets
+message ReplicatedSetDef {
+  // Mandatory element type for this replicated set
+  string element = 1;
+}
+
+// Options specific to (heterogeneous) replicated maps
+message ReplicatedMapDef {
+  // Mandatory key type for this replicated map
+  string key = 1;
+}
+
+// Options specific to replicated counter maps
+message ReplicatedCounterMapDef {
+  // Mandatory key type for this replicated counter map
+  string key = 1;
+}
+
+// Options specific to replicated register maps
+message ReplicatedRegisterMapDef {
+  // Mandatory key type for this replicated register map
+  string key = 1;
+  // Mandatory value type for this replicated register map
+  string value = 2;
+}
+
+// Options specific to replicated multi-maps
+message ReplicatedMultiMapDef {
+  // Mandatory key type for this replicated multi-map
+  string key = 1;
+  // Mandatory value type for this replicated multi-map
+  string value = 2;
+}
+
+// Options specific to replicated votes
+message ReplicatedVoteDef {}
